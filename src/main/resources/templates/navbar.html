@@ -1,0 +1,10 @@
+<div th:fragment="navbar" xmlns:th="http://www.thymeleaf.org"
+     xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+    <nav class="navbar">
+        <ul class="nav navbar-nav">
+            <li><a th:href="@{/}">Index</a></li>
+            <li><a sec:authorize="hasAuthority('ADMIN')" th:href="@{/admin}">Admin</a></li>
+            <li><a th:href="@{/logout}">Logout</a></li>
+        </ul>
+    </nav>
+</div>

