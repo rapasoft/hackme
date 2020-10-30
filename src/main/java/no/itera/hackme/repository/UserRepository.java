@@ -4,12 +4,15 @@ import no.itera.hackme.dto.Person;
 import no.itera.hackme.dto.User;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Component
+@Validated
 public class UserRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -41,22 +44,24 @@ public class UserRepository {
         return Optional.empty();
     }
 
-    public List<Person> filterByName(String name) {
+    public List<Person> filterByName(@Pattern(regexp = "[a-z|A-Z]*") String name) {
         return jdbcTemplate.query("" +
-                "SELECT " +
-                "P.NAME as PERSON_NAME, P.AGE, D.NAME AS DEPARTMENT_NAME, ET.NAME AS EMPLOYMENT_TYPE_NAME," +
-                " E.START_DATE, E.END_DATE " +
-                "FROM PERSON P " +
-                "JOIN EMPLOYEE E ON P.ID = E.PERSON_ID " +
-                "JOIN DEPARTMENT D ON E.DEPARTMENT_ID = D.ID " +
-                "JOIN EMPLOYMENT_TYPE ET ON ET.ID = E.EMPLOYMENT_TYPE_ID " +
-                "WHERE P.NAME LIKE '%" + name + "%'", (resultSet, i) -> new Person(
-                resultSet.getString("PERSON_NAME"),
-                resultSet.getInt("AGE"),
-                resultSet.getString("DEPARTMENT_NAME"),
-                resultSet.getString("EMPLOYMENT_TYPE_NAME"),
-                resultSet.getString("START_DATE"),
-                resultSet.getString("END_DATE")
-        ));
+                        "SELECT " +
+                        "P.NAME as PERSON_NAME, P.AGE, D.NAME AS DEPARTMENT_NAME, ET.NAME AS EMPLOYMENT_TYPE_NAME," +
+                        " E.START_DATE, E.END_DATE " +
+                        "FROM PERSON P " +
+                        "JOIN EMPLOYEE E ON P.ID = E.PERSON_ID " +
+                        "JOIN DEPARTMENT D ON E.DEPARTMENT_ID = D.ID " +
+                        "JOIN EMPLOYMENT_TYPE ET ON ET.ID = E.EMPLOYMENT_TYPE_ID " +
+                        "WHERE P.NAME LIKE CONCAT('%', :name, '%')",
+                Map.of("name", name),
+                (resultSet, i) -> new Person(
+                        resultSet.getString("PERSON_NAME"),
+                        resultSet.getInt("AGE"),
+                        resultSet.getString("DEPARTMENT_NAME"),
+                        resultSet.getString("EMPLOYMENT_TYPE_NAME"),
+                        resultSet.getString("START_DATE"),
+                        resultSet.getString("END_DATE")
+                ));
     }
 }
